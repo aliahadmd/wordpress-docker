@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  
+  # WordPress Service
+  wordpress:
+    container_name: wp1
+    image: wordpress:latest
+    restart: always
+    ports:
+      - "8001:80"  # Map port 8001 on host to port 80 in the container
+    volumes:
+      - ./wordpress:/var/www/html  # Persist WordPress files in ./wordpress directory
+    environment:
+      WORDPRESS_DB_HOST: db:3306  # MySQL service and port
+      WORDPRESS_DB_USER: user
+      WORDPRESS_DB_PASSWORD: password
+      WORDPRESS_DB_NAME: wordpress
+    depends_on:
+      - db  # Ensure WordPress waits for the database
+
+  # MySQL Database Service
+  db:
+    container_name: mysql1
+    image: mysql:5.7  # Using a stable MySQL 5.7 version instead of the latest MySQL
+    restart: always
+    volumes:
+      - ./db:/var/lib/mysql  # Persist MySQL data in ./db directory
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: rootpassword  # Set root password explicitly
+    ports:
+      - "3306:3306"  # Expose MySQL on port 3306 for management tools
+
+volumes:
+  db:  # Declare a volume for MySQL data persistence (optional if you're mapping ./db)
+    driver: local
